@@ -1,4 +1,4 @@
-function c = conv_(a,b)
+function [c,out_length]  = conv_(a,b)
  out_length = length(a)+length(b)-1;
     c = zeros(1,out_length);
     min_length = length(a)*(length(a)<length(b)) + length(b)*(length(b)<=length(a));
