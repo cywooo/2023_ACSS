@@ -21,7 +21,7 @@ QAM_SNR_dB = [1:20];
 show_fig = [5 10 15 20];
 QAM_Error_Symbol_theory = zeros(1,length(QAM_SNR_dB));
 QAM_Error_Symbol = zeros(1,length(QAM_SNR_dB));
-
+a=1;
 for g = 1:length(QAM_SNR_dB);
     QAM_SNR = 10^(QAM_SNR_dB(g)/10);
     QAM_mo_power = 0;
@@ -69,11 +69,13 @@ for g = 1:length(QAM_SNR_dB);
     QAM_m_demo = [QAM_m_I_phase_demo QAM_m_Q_phase_demo];
     QAM_m_demo = reshape(QAM_m_demo',[1,length(m)]);
     
-    
     if max(QAM_SNR_dB(g) == show_fig);
-        figure;
-        scatter(QAM_m_I_phase_ch,QAM_m_Q_phase_ch);
+        figure(1);
+        subplot(2,2,a);
+        scatter(QAM_m_I_phase_ch,QAM_m_Q_phase_ch,2);
+        axis([-8 8 -8 8]);
         title("SNR = ",QAM_SNR_dB(g));
+        a = a+1;
     end
     
     QAM_Error_Bit = sum(abs(QAM_m_demo-m))/num_of_series;
@@ -86,9 +88,9 @@ for g = 1:length(QAM_SNR_dB);
 end
 
 figure;
-semilogy([1:length(QAM_Error_Symbol)],QAM_Error_Symbol,'b*-.', 'MarkerSize',10);
+semilogy([1:length(QAM_Error_Symbol)],QAM_Error_Symbol,'b*-.','MarkerSize',10);
 hold on;
-semilogy([1:length(QAM_Error_Symbol_theory)],QAM_Error_Symbol_theory,'rO:', 'MarkerSize',10);
+semilogy([1:length(QAM_Error_Symbol_theory)],QAM_Error_Symbol_theory,'rO:','MarkerSize',10);
 title('16-QAM SNR to Symbol Error Rate');
 legend('Simulated','Theoretical');
 grid on
