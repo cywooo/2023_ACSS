@@ -112,7 +112,7 @@ QAM_m_demo = reshape(QAM_m_demo',[1,length(m)]);
 figure(2);
 scatter(QAM_m_I_phase_ch,QAM_m_Q_phase_ch);
 
-QAM_Error_Bit = sum(abs(QAM_m_demo-m))/num_of_series;
+QAM_Error_Bit = sum(abs(QAM_m_demo-m))/ ;
 
 % certification
 QAM_test_SNR = log10(mean(m_I_phase_Amp.^2+m_Q_phase_Amp.^2)/QAM_noise_power^2)*10;
