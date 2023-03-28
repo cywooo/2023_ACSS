@@ -33,7 +33,7 @@ s_up_SRRC_2 = s_up_SRRC_2([floor((length(s_up_SRRC_2)-length(s_up_SRRC_1))/2)+1 
 
 % Let the symbol rate be 1MHz, the carrier frequency be 8MHz. 
 % Conduct the up-conversion operation in the equivalent digital domain.
-w_c = carrier_freq_analog/symbol_rate/M;
+w_c = carrier_freq_analog/symbol_rate/M*2*pi;
 carrier = exp(i*w_c.*[1:length(s_up_SRRC_2)]);
 
 s_out = real(s_up_SRRC_2 .* carrier);
@@ -57,4 +57,4 @@ title(title_text,"fontsize",12);
 
 % Observe the up-converted spectrum to see if your design is correct.
 figure;
-plot(linspace(-1/2*symbol_rate*M*6.22,1/2*symbol_rate*M*6.22,length(S_out)),abs(S_out));
+plot(linspace(-1/2*symbol_rate*M,1/2*symbol_rate*M,length(S_out)),abs(S_out));
