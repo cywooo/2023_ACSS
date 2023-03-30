@@ -56,7 +56,7 @@ s_08_received_SRRC1 = s_08_received_SRRC1([floor((length(s_08_received_SRRC1)-le
 
 a_hat_09 = down_sample(M_1,s_08_received_SRRC1);
 
-a_hat_normalized = a_hat_09/(sqrt(mean(a_hat_09.^2)));
+a_hat_normalized = a_hat_09/(sqrt(mean(a_hat_09.^2));
 
 figure;
 stem([1:length(a_hat_normalized)],real(a_hat_normalized));
