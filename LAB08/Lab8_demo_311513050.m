@@ -59,14 +59,43 @@ a_hat_09 = down_sample(M_1,s_08_received_SRRC1);
 a_hat_normalized = a_hat_09/(sqrt(mean(a_hat_09.^2)));
 
 figure;
-stem([1:length(a_hat_normalized)],real(a_hat_normalized));
+stem([1:length(a_hat_normalized)],real(a_hat_normalized),"+r--");
 hold on;
-stem([1:length(s_BPSK)],real(s_BPSK));
+stem([1:length(s_BPSK)],real(s_BPSK),"Ob:");
 hold off;
-legend("a hat","s BPSK");
+legend("a hat","s BPSK","fontsize",12);
+title_text = "SRRC-DMA result compare";
+title(title_text,"fontsize",12);
+
+figure;
+stem([1:length(s_01_up_1)],real(s_01_up_1));
+hold on;
+plot([1:length(s_02_SRRC_1)],real(s_02_SRRC_1));
+hold off;
+legend("BPSK up1 ","s SRRC","fontsize",12);
+title_text = "SRRC Dig.to Dig.";
+title(title_text,"fontsize",12);
+
+figure;
+stem([1:length(s_03_up_2)],real(s_03_up_2),'LineStyle','none');
+hold on;
+plot([1:length(s_04_SRRC_2)],real(s_04_SRRC_2));
+hold off;
+legend("BPSK up2 ","s SRRC DMA","fontsize",12);
+title_text = "SRRC DMA output";
+title(title_text,"fontsize",12);
+
+
 
 %% practice 3
 % different since s_03_up_2 
+
+IIR_response = filter(Lab8_demo_IIR,[1 zeros(1,M_2*4-1)]);
+
+figure;
+stem([1:length(IIR_response)],real(IIR_response));
+title_text = "IIR impulse response";
+title(title_text,"fontsize",12);
 
 s_04_IIR = filter(Lab8_demo_IIR,s_03_up_2);
 
@@ -79,17 +108,27 @@ s_07_IIR_down_1 = down_sample(M_2,s_06_IIR_received);
 s_08_IIR_SRRC1 = conv(s_07_IIR_down_1,SRRC_1_n);
 s_08_IIR_SRRC1 = s_08_IIR_SRRC1([floor((length(s_08_IIR_SRRC1)-length(s_07_IIR_down_1))/2)+1 :...
             floor((length(s_08_IIR_SRRC1)-length(s_07_IIR_down_1))/2)+length(s_07_IIR_down_1)]);% aligning
-
-a_hat_IIR_09 = down_sample(M_1,s_08_IIR_SRRC1);
+        
+delay = 1;
+a_hat_IIR_09 = s_08_IIR_SRRC1([mod(delay,M_1)+1:M_1:length(s_08_IIR_SRRC1)]);
 
 a_hat_IIR_normalized = a_hat_IIR_09/(sqrt(mean(a_hat_IIR_09.^2)));
 
 figure;
-stem([1:length(a_hat_IIR_normalized)],real(a_hat_IIR_normalized));
+stem([1:length(s_03_up_2)],real(s_03_up_2)/1.43*0.42,'LineStyle','none');
 hold on;
-stem([1:length(s_BPSK)],real(s_BPSK));
+plot([1:length(s_04_IIR)],real(s_04_IIR));
 hold off;
-legend("a hat IIR","s BPSK");
-title_text = "p3";
+legend("BPSK up2 ","s IIR","fontsize",12);
+title_text = "IIR DMA output";
+title(title_text,"fontsize",12);
+
+figure;
+stem([1:length(a_hat_IIR_normalized)],real(a_hat_IIR_normalized),"xr--");
+hold on;
+stem([1:length(s_BPSK)],real(s_BPSK),"Ob-.");
+hold off;
+legend("a hat IIR","s BPSK","fontsize",12);
+title_text = "IIR DMA";
 title(title_text,"fontsize",12);
 
