@@ -56,7 +56,7 @@ carrier_rece_shift = exp(i*(w_c.*[1:length(s_04_IIR)]+ phase_shift));
 
 s_05_channel = real(s_04_IIR .* carrier_tran);
 
-s_05_channel_noise = s_05_channel + randn(1,length(s_05_channel))*0.5;
+s_05_channel_noise = s_05_channel + randn(1,length(s_05_channel))*sqrt(0.5);
 
 
 s_06_IF_rece = s_05_channel_noise .* cos(2*pi*(carrier_freq_analog-IF_freq)/DMA_rate.*[1:length(s_05_channel_noise)]);
