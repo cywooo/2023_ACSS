@@ -79,7 +79,7 @@ s_10_IF_DigFilter = conv(s_09_IF_toDigFilter,SRRC_1_n);
 s_10_IF_DigFilter = s_10_IF_DigFilter([floor((length(s_10_IF_DigFilter)-length(s_09_IF_toDigFilter))/2)+1 :...
             floor((length(s_10_IF_DigFilter)-length(s_09_IF_toDigFilter))/2)+length(s_09_IF_toDigFilter)]);% aligning
 
-delay = 1;
+delay = 6;
 s_11_IF_reDig = s_10_IF_DigFilter([delay:M_1:length(s_10_IF_DigFilter)]);
 
 
