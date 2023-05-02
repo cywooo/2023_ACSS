@@ -23,11 +23,11 @@ B = M_2.*sin((1-a).*pi.*n_2./M_2)./(4.*a.*n_2);
 C = 1-(4.*a.*n_2./M_2).^2;
 SRRC_2_n = (4.*a./pi).*(A+B)./C;
 
-imbalance_g = 1.5;
-imbalance_phi = 2*pi/360*90; %0;%  
+imbalance_g = 1;
+imbalance_phi = 0;%  2*pi/360*30; %
 
 %% HW
-signal_length = 50;
+signal_length = 100;
 % signal generate------
 s_real = sign(randn(1,signal_length)); %[-1 ones(1,signal_length/2-1) -1*ones(1,signal_length/2-1) 1]; %
 s_imag = sign(randn(1,signal_length)); %[-1*ones(1,signal_length/2) ones(1,signal_length/2)]; %
