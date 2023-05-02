@@ -27,7 +27,7 @@ function [equalizer] = formequalizer(apha_b,tou,len)
         pole = double(solve(aa^-1==0))
         sol = iztrans(aa);
         
-        if  (pole==1)  %(pole < 0) ||
+        if  (pole==1)
             warning("stable equalizer is not exist");
         elseif abs(pole) < 1
             formula = formula + sol*u(n);
