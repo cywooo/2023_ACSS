@@ -24,20 +24,17 @@ C = 1-(4.*a.*n_2./M_2).^2;
 SRRC_2_n = (4.*a./pi).*(A+B)./C;
 
 %% HW
-signal_length = 80 + 10;
+signal_length = 50 + 10; % signal length adjust
 % signal generate------
-s_real = [zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; % 1 zeros(1,signal_length-10-1)]; %
-s_imag = [zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; %[zeros(1,5) 1 zeros(1,signal_length-5-1)]; %
+s_real = [zeros(1,5)  1 zeros(1,signal_length-6)]; %[zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; %
+s_imag = [zeros(1,5)  1 zeros(1,signal_length-6)]; %[zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; %
 s_1 = s_real + s_imag.*1i;
 % up sample by 16-------
 s_01_up_1 = up_sample(M_1,s_1);
 % SRRC filter ---------
 s_02_SRRC_1 = conv(s_01_up_1,SRRC_1_n);
 s_02_SRRC_1 = s_02_SRRC_1([floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+1 :...
-            floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+length(s_01_up_1)]);% aligning
-        
-%s_02_SRRC_1_real = filter(Lab10_HW_IIR_16,s_01_up_1_real);         
-%s_02_SRRC_1_imag = filter(Lab10_HW_IIR_16,s_01_up_1_imag);                 
+            floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+length(s_01_up_1)]);% aligning           
 %-----------------------
 % up sample by 2-------
 s_03_up_2 = up_sample(M_2,s_02_SRRC_1);   
@@ -52,18 +49,15 @@ s_04_IIR = s_04_IIR([floor((length(s_04_IIR)-length(s_03_up_2))/2)+1 :...
 fc = 1/4*DMA_rate;
 x =  s_04_IIR.*exp(1i*2*pi*fc.*[1:length(s_04_IIR)]./DMA_rate);
 x = real(x);
-% Channel---------------
+% Channel===============
 M = M_1*M_2;
-%============================================================eq
-apha_b = [0.3  1   0.3];
-tou =    [0    1   2];
+apha_b = [0.3  1   0.3]; % channel state
+tou =    [0    1   2];   % channel state
 num_of_multipath = length(apha_b);
 x_ = zeros(num_of_multipath ,length(x));
 for k=[1:num_of_multipath]
     x_(k,:) = apha_b(k).*[zeros(1,floor(tou(k)*M)) x(1:(length(x)-floor(tou(k)*M)))];
 end
-
-
 y = sum(x_);
 
 % IF downconvert to IF freq.----
@@ -117,7 +111,7 @@ for k=[1:num_of_multipath]
         imag(s_11_IF_reDig_split(k,:))/adj*1i;
 end
 % equalizer--------------
-equalizer_len = 80;
+equalizer_len = 20;
 equizer = formequalizer(apha_b,tou,equalizer_len);%++++++++
 
 equizer_ = equizer/sqrt(mean(equizer.^2));
@@ -132,7 +126,7 @@ hold on;
 stem([1:signal_length],s_real,"r+");
 hold off;
 legend("re","tr");
-title_text = "Transmit and Receive(real), HW";
+title_text = "Transmit and Receive(real) no EQ, HW";
 title(title_text,"fontsize",12);
 
 subplot(2,1,2);
@@ -141,7 +135,7 @@ hold on;
 stem([1:signal_length],s_imag,"r+");
 hold off;
 legend("re","tr");
-title_text = "Transmit and Receive(imag), HW";
+title_text = "Transmit and Receive(imag) no EQ, HW";
 title(title_text,"fontsize",12);
 
 figure(2);
@@ -187,6 +181,6 @@ stem([1:length(equal_bit)]-equalizer_len/2,imag(equal_bit),"bo");
 hold on;
 stem([1:signal_length],s_imag,"r+");
 hold off;
-legend("re_eq","tr");
+legend("re_e_q","tr");
 title_text = "Transmit and Receive EQ (imag), HW";
 title(title_text,"fontsize",12);
