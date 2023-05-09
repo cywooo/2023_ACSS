@@ -27,7 +27,7 @@ title_text = "Gussian filter, freq. domain, M = "+num2str(M)+" ,BT = "+num2str(B
 title(title_text,"fontsize",12);
 
 %% demo
-signal_length = 50 +20;
+signal_length = 100 +20;
 % signal generate------
 s_1 = [zeros(1,10) sign(randn(1,signal_length-20)) zeros(1,10)];
 % up sample by 16-------
@@ -77,22 +77,22 @@ s_08_receivedLPF = filter(Lab12_demo_IIR,s_07_Channel);
 s_09_down = s_08_receivedLPF([1:M_2:length(s_08_receivedLPF)]);
 
 % demodulate IF frequency-------
-s_010_deIFmodu = s_09_down .* exp(-1i*2*pi*IF_freq/DAC_rate.*[1:length(s_09_down)]);
+s_10_deIFmodu = s_09_down .* exp(-1i*2*pi*IF_freq/DAC_rate.*[1:length(s_09_down)]);
 
 % SRRC----------------------
 %=========
 M_srrc = M_1;
 n_srrc = [-2*M_srrc:2*M_srrc] + 1e-6;% Avoid Singularity
-a = 0.99 ;% Avoid Singularity
+a = 0.5 ;% Avoid Singularity
 
 A = cos((1+a).*pi.*n_srrc./M_srrc);
 B = M_srrc.*sin((1-a).*pi.*n_srrc./M_srrc)./(4.*a.*n_srrc);
 C = 1-(4.*a.*n_srrc./M_srrc).^2;
 SRRC_n = (4.*a./pi).*(A+B)./C;
 %=========
-s_11_SRRC = conv(s_010_deIFmodu,SRRC_n);
-s_11_SRRC = s_11_SRRC([floor((length(s_11_SRRC)-length(s_010_deIFmodu))/2)+1 :...
-            floor((length(s_11_SRRC)-length(s_010_deIFmodu))/2)+length(s_010_deIFmodu)]);% aligning
+s_11_SRRC = conv(s_10_deIFmodu,SRRC_n);
+s_11_SRRC = s_11_SRRC([floor((length(s_11_SRRC)-length(s_10_deIFmodu))/2)+1 :...
+            floor((length(s_11_SRRC)-length(s_10_deIFmodu))/2)+length(s_10_deIFmodu)]);% aligning
 % take phase------------------
 s_12_phase = unwrap(angle(s_11_SRRC))/2/pi/fd*DAC_rate;
 
@@ -110,7 +110,7 @@ s_14_Gussianf = s_14_Gussianf([floor((length(s_14_Gussianf)-length(s_13_Diff))/2
             floor((length(s_14_Gussianf)-length(s_13_Diff))/2)+length(s_13_Diff)]);% aligning
         
 % down sample by 16-------------
-delay = 10;
+delay = 13;
 s_15_reDig = s_14_Gussianf([delay:M_1:length(s_14_Gussianf)]);
 
 
