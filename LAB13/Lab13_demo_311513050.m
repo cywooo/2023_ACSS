@@ -23,12 +23,59 @@ B = M_2.*sin((1-a).*pi.*n_2./M_2)./(4.*a.*n_2);
 C = 1-(4.*a.*n_2./M_2).^2;
 SRRC_2_n = (4.*a./pi).*(A+B)./C;
 
-%% demo 01
-signal_length = 1e3 + 10; % signal length adjust
+%% practice 01
+signal_length = 50; % signal length adjust
+s_1 = sign(randn(1,signal_length)) + sign(randn(1,signal_length))*1i; %
+h_1_to_2 = [ randn(1,1)*exp(-j*2*pi*rand(1,1)) ;...
+             randn(1,1)*exp(-j*2*pi*rand(1,1)) ];
+         
+h_beamforming = conj(h_1_to_2)./(sqrt(sum(abs(h_1_to_2).^2))); %% beamforming
+
+SNR = 20; % inf;%
+noise_power = 1/10^(SNR/10);
+%-------------------
+y_1_to_2 = (h_beamforming.*h_1_to_2)*s_1;
+[y_x,y_y] = size(y_1_to_2);
+y_1_to_2 = y_1_to_2 + randn(y_x,y_y)*sqrt(noise_power/2) + randn(y_x,y_y)*sqrt(noise_power/2)*1i;
+
+s_reDig = sum(y_1_to_2);
+%-------------------
+y_channel = h_1_to_2*s_1 + randn(y_x,y_y)*sqrt(noise_power/2) + randn(y_x,y_y)*sqrt(noise_power/2)*1i;
+s_reDig = h_1_to_2'* y_channel;
+%-------------------
+
+s_reDig_normalized = real(s_reDig)/sqrt(sum(real(s_reDig).^2/signal_length))+...
+                     imag(s_reDig)/sqrt(sum(imag(s_reDig).^2/signal_length)).*1i;
+
+figure(1);
+subplot(2,1,1);
+stem([1:length(s_reDig_normalized)],real(s_reDig_normalized),"bo");
+hold on;
+stem([1:length(s_1)],real(s_1),"r+");
+hold off;
+legend("re","tr");
+%title_text = "Transmit and Receive 1 to 2,Baseband demo";
+title_text = "Tr. and Re. 1x2, Baseband , SNR = "+num2str(SNR);
+title(title_text,"fontsize",12);
+subplot(2,1,2);
+stem([1:length(s_reDig_normalized)],imag(s_reDig_normalized),"bo");
+hold on;
+stem([1:length(s_1)],imag(s_1),"r+");
+hold off;
+legend("re","tr");
+%title_text = "Transmit and Receive 1 to 2,Baseband demo";
+title_text = "Tr. and Re. 1x2, Baseband , SNR = "+num2str(SNR);
+title(title_text,"fontsize",12);
+%% 
+signal_length = 1e5 + 10; % signal length adjust
 % signal generate------
-s_1 = [zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; %
+s_2 = [zeros(1,5) sign(randn(1,signal_length-10)) zeros(1,5)]; %
+% demo 01
+
+
+
 % up sample by 16-------
-s_01_up_1 = up_sample(M_1,s_1);
+s_01_up_1 = up_sample(M_1,s_2);
 % SRRC filter ---------
 s_02_SRRC_1 = conv(s_01_up_1,SRRC_1_n);
 s_02_SRRC_1 = s_02_SRRC_1([floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+1 :...
@@ -50,10 +97,13 @@ h_1_to_2 = [ randn(1,1)*exp(-j*2*pi*rand(1,1)) ;...
              randn(1,1)*exp(-j*2*pi*rand(1,1)) ];
 
 h_beamforming = conj(h_1_to_2)./(sqrt(sum(abs(h_1_to_2).^2))); %% beamforming
-         
+
+SNR = 10; % inf;%
+noise_power = 1/10^(SNR/10);
+
 y_1_to_2 = (h_beamforming.*h_1_to_2)*x;
 [y_x,y_y] = size(y_1_to_2);
-y_1_to_2 = y_1_to_2 + randn(y_x,y_y)*sqrt(0);
+y_1_to_2 = y_1_to_2 + randn(y_x,y_y)*sqrt(noise_power);
 
 num_of_antana = 2;
 % downconvert---------
@@ -83,13 +133,15 @@ s_11_reDig_normalized = s_11_reDig/sqrt(sum(abs(s_11_reDig([6:end-5])).^2/(signa
 %-------------------------------
 
 scope = [floor(signal_length/2)-19:floor(signal_length/2)+20];
-figure(1);
+
+figure(2);
 stem([1:length(scope)],real(s_11_reDig_normalized(scope)),"bo");
 hold on;
-stem([1:length(scope)],s_1(scope),"r+");
+stem([1:length(scope)],s_2(scope),"r+");
 hold off;
 legend("re","tr");
-title_text = "Transmit and Receive 1 to 2, demo";
+%title_text = "Transmit and Receive 1 to 2,Passband demo";
+title_text = "Tr. and Re. 1x2, Passband , SNR = "+num2str(SNR);
 title(title_text,"fontsize",12);
 
 %% demo 03
@@ -105,7 +157,7 @@ y_2_to_2 = h_2_to_2* [ x ;...
 SNR = -10; % inf;%
 noise_power = 1/10^(SNR/10);
 
-y_channel = y_2_to_2 + randn(y_x,y_y)*sqrt(noise_power/num_of_antana);
+y_channel = y_2_to_2 + randn(y_x,y_y)*sqrt(noise_power);
 
 W_ZF = inv(h_2_to_2);
 y_ZF = W_ZF * y_channel;
@@ -162,8 +214,8 @@ s_11_MMSE_reDig = sum(s_11_MMSE_reDig_split);
 
 s_11_MMSE_reDig_normalized = s_11_MMSE_reDig/sqrt(sum(abs(s_11_MMSE_reDig([6:end-5])).^2/(signal_length-10)));
 
-BER_ZF = sum(abs(sign(real(s_11_ZF_reDig([6:end-5])))-s_1([6:end-5])))/2/(signal_length-10);
-BER_MMSE = sum(abs(sign(real(s_11_MMSE_reDig([6:end-5])))-s_1([6:end-5])))/2/(signal_length-10);
+BER_ZF = sum(abs(sign(real(s_11_ZF_reDig([6:end-5])))-s_2([6:end-5])))/2/(signal_length-10);
+BER_MMSE = sum(abs(sign(real(s_11_MMSE_reDig([6:end-5])))-s_2([6:end-5])))/2/(signal_length-10);
 %-------------------------------
 scope = [floor(signal_length/2)-19:floor(signal_length/2)+20];
 
@@ -171,7 +223,7 @@ figure(3);
 subplot(2,1,1);
 stem([1:length(scope)],real(s_11_ZF_reDig(scope)),"bo");
 hold on;
-stem([1:length(scope)],s_1(scope),"r+");
+stem([1:length(scope)],s_2(scope),"r+");
 hold off;
 legend("re","tr");
 title_text = "Tr. and Re. 2x2   ZF , SNR = "+num2str(SNR)+", BER = "+num2str(BER_ZF);
@@ -180,7 +232,7 @@ title(title_text,"fontsize",12);
 subplot(2,1,2);
 stem([1:length(scope)],real(s_11_MMSE_reDig_normalized(scope)),"bo");
 hold on;
-stem([1:length(scope)],s_1(scope),"r+");
+stem([1:length(scope)],s_2(scope),"r+");
 hold off;
 legend("re","tr");
 title_text = "Tr. and Re. 2x2  MMSE, SNR = "+num2str(SNR)+", BER = "+num2str(BER_MMSE);
