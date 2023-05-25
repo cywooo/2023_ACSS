@@ -34,10 +34,10 @@ SRRC_2_n = (4.*a./pi).*(A+B)./C;
 % max(SRRC_2_n) = 1.2186 & min(SRRC_2_n) = -0.1094
 nob_SRRC_2 = 5;
 DR_SRRC_2 = 2^1; %+-
-code_map_SRRC_1 = -DR_SRRC_2:((DR_SRRC_2*2)/(2^nob_SRRC_2)):(DR_SRRC_2-(DR_SRRC_2*2)/(2^nob_SRRC_2));
+code_map_SRRC_2 = -DR_SRRC_2:((DR_SRRC_2*2)/(2^nob_SRRC_2)):(DR_SRRC_2-(DR_SRRC_2*2)/(2^nob_SRRC_2));
 SRRC_2_F = F_point_decision(SRRC_2_n,code_map_SRRC_2);
         
-bpsk_length = 40 + 10;
+bpsk_length = 20 + 10;
 s_BPSK =[zeros(1,5) sign(randn(1,bpsk_length-10)) zeros(1,5)];
 %% no Float
 % upsampling factor is 16
@@ -94,42 +94,64 @@ sf_02_SRRC_1 = sf_02_SRRC_1([floor((length(sf_02_SRRC_1)-length(sf_01_up_1))/2)+
 nob = 5;
 DR = 2^1; %+-
 code_map = -DR:((DR*2)/(2^nob)):(DR-(DR*2)/(2^nob));
-SRRC_1_F = F_point_decision(sf_02_SRRC_1,code_map);
+sf_02_SRRC_1 = F_point_decision(sf_02_SRRC_1,code_map);
         
-s_03_up_2 = up_sample(M_2,s_02_SRRC_1);       
+sf_03_up_2 = up_sample(M_2,sf_02_SRRC_1);       
 
-s_04_SRRC_2 = conv(s_03_up_2,SRRC_2_n);
-s_04_SRRC_2 = s_04_SRRC_2([floor((length(s_04_SRRC_2)-length(s_03_up_2))/2)+1 :...
-            floor((length(s_04_SRRC_2)-length(s_03_up_2))/2)+length(s_03_up_2)]);% aligning
+sf_04_SRRC_2 = conv(sf_03_up_2,SRRC_2_F);
+sf_04_SRRC_2 = sf_04_SRRC_2([floor((length(sf_04_SRRC_2)-length(sf_03_up_2))/2)+1 :...
+            floor((length(sf_04_SRRC_2)-length(sf_03_up_2))/2)+length(sf_03_up_2)]);% aligning
+% max(sf_04_SRRC_2) = 1.5156 & min(sf_04_SRRC_2) = -1.5156
+nob = 5;
+DR = 2^1; %+-
+code_map = -DR:((DR*2)/(2^nob)):(DR-(DR*2)/(2^nob));
+sf_04_SRRC_2 = F_point_decision(sf_04_SRRC_2,code_map);
 
 w_c = carrier_freq_analog/symbol_rate/M_1/M_2*2*pi;
-carrier_tran = exp(i*w_c.*[1:length(s_04_SRRC_2)]);
-carrier_rece = exp(-i*w_c.*[1:length(s_04_SRRC_2)]);
+carrier_tran = exp(i*w_c.*[1:length(sf_04_SRRC_2)]);
+carrier_rece = exp(-i*w_c.*[1:length(sf_04_SRRC_2)]);
+% max(real(carrier_tran)) = 1 & min(real(carrier_tran)) = -1
+% max(real(carrier_rece)) = 1 & min(real(carrier_rece)) = -1
+nob = 5;
+DR = 2^0; %+-
+code_map = -DR:((DR*2)/(2^nob)):(DR-(DR*2)/(2^nob));
+carrier_tran = F_point_decision(carrier_tran,code_map);
+carrier_rece = F_point_decision(carrier_rece,code_map);
 
-s_05_channel = real(s_04_SRRC_2 .* carrier_tran);
-s_05_channel_noise = s_05_channel + randn(1,length(s_05_channel))*sqrt(0);
+sf_05_channel = real(sf_04_SRRC_2 .* carrier_tran);
+sf_05_channel_noise = sf_05_channel + randn(1,length(sf_05_channel))*sqrt(0);
 
-s_06_IF_rece = s_05_channel_noise .* carrier_rece;
+sf_06_IF_rece = sf_05_channel_noise .* carrier_rece;
+% max(real(sf_06_IF_rece)) = 0.9375 & min(real(sf_06_IF_rece)) = -1
+nob = 5;
+DR = 2^0; %+-
+code_map = -DR:((DR*2)/(2^nob)):(DR-(DR*2)/(2^nob));
+sf_06_IF_rece = F_point_decision(sf_06_IF_rece,code_map);
 
-s_07_IF_SRRC_2 = conv(s_06_IF_rece,SRRC_2_n);
-s_07_IF_SRRC_2 = s_07_IF_SRRC_2([floor((length(s_07_IF_SRRC_2)-length(s_06_IF_rece))/2)+1 :...
-            floor((length(s_07_IF_SRRC_2)-length(s_06_IF_rece))/2)+length(s_06_IF_rece)]);% aligning
+sf_07_IF_SRRC_2 = conv(sf_06_IF_rece,SRRC_2_n);
+sf_07_IF_SRRC_2 = sf_07_IF_SRRC_2([floor((length(sf_07_IF_SRRC_2)-length(sf_06_IF_rece))/2)+1 :...
+            floor((length(sf_07_IF_SRRC_2)-length(sf_06_IF_rece))/2)+length(sf_06_IF_rece)]);% aligning
+% max(real(sf_07_IF_SRRC_2)) = 1.9108 & min(real(sf_07_IF_SRRC_2)) = -1
+nob = 5;
+DR = 2^0; %+-
+code_map = -DR:((DR*2)/(2^nob)):(DR-(DR*2)/(2^nob));
+sf_07_IF_SRRC_2 = F_point_decision(sf_07_IF_SRRC_2,code_map);
 
 delay = 1;
-s_08_IF_reDig = s_07_IF_SRRC_2([mod(delay,M_2)+1:M_2:length(s_07_IF_SRRC_2)]);
+sf_08_IF_reDig = sf_07_IF_SRRC_2([mod(delay,M_2)+1:M_2:length(sf_07_IF_SRRC_2)]);
  
-s_09_IF_toDigFilter = s_08_IF_reDig;
-s_10_IF_DigFilter = conv(s_09_IF_toDigFilter,SRRC_1_n);
-s_10_IF_DigFilter = s_10_IF_DigFilter([floor((length(s_10_IF_DigFilter)-length(s_09_IF_toDigFilter))/2)+1 :...
-            floor((length(s_10_IF_DigFilter)-length(s_09_IF_toDigFilter))/2)+length(s_09_IF_toDigFilter)]);% aligning
-
+sf_09_IF_toDigFilter = sf_08_IF_reDig;
+sf_10_IF_DigFilter = conv(sf_09_IF_toDigFilter,SRRC_1_n);
+sf_10_IF_DigFilter = sf_10_IF_DigFilter([floor((length(sf_10_IF_DigFilter)-length(sf_09_IF_toDigFilter))/2)+1 :...
+            floor((length(sf_10_IF_DigFilter)-length(sf_09_IF_toDigFilter))/2)+length(sf_09_IF_toDigFilter)]);% aligning
+  
 delay = 1;
-s_11_IF_reDig = s_10_IF_DigFilter([mod(delay,M_1)+1:M_1:length(s_10_IF_DigFilter)]);
-s_11_IF_reDig = s_11_IF_reDig([6:end-5]);
+sf_11_IF_reDig = sf_10_IF_DigFilter([mod(delay,M_1)+1:M_1:length(sf_10_IF_DigFilter)]);
+sf_11_IF_reDig = sf_11_IF_reDig([6:end-5]);
 
-s_11_IF_reDig_normalized = s_11_IF_reDig/(sqrt(mean(real(s_11_IF_reDig).^2)));
+sf_11_IF_reDig_normalized = sf_11_IF_reDig/(sqrt(mean(real(sf_11_IF_reDig).^2)));
 
-SQNR = 10*log10(norm(s_BPSK([6:end-5]))/ norm(abs(s_11_IF_reDig_normalized-s_BPSK([6:end-5]))));
+SQNR_f = 10*log10(norm(s_BPSK([6:end-5]))/ norm(abs(sf_11_IF_reDig_normalized-s_BPSK([6:end-5]))));
 %% Figure
 figure;
 stem([1:length(s_11_IF_reDig_normalized)],real(s_11_IF_reDig_normalized),"rO");
@@ -138,4 +160,13 @@ stem([1:length(s_BPSK)-10],real(s_BPSK([6:end-5])),"b+");
 hold off;
 legend("IF Receive","s BPSK, Transmit");
 title_text = "Transmit and Receive, SQNR = "+num2str(SQNR);
+title(title_text,"fontsize",12);
+
+figure;
+stem([1:length(sf_11_IF_reDig_normalized)],real(sf_11_IF_reDig_normalized),"rO");
+hold on;
+stem([1:length(s_BPSK)-10],real(s_BPSK([6:end-5])),"b+");
+hold off;
+legend("IF Receive","s BPSK, Transmit");
+title_text = "Transmit and Receive Fixed-Point, SQNR = "+num2str(SQNR_f);
 title(title_text,"fontsize",12);
