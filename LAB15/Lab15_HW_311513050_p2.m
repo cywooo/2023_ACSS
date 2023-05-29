@@ -19,7 +19,7 @@ M_1 = DAC_rate/symbol_rate;
 M_2 = ANL_rate/DAC_rate;
 
 %% demo
-signal_length = 500;
+signal_length = 1e3;
 % signal generate------
 s_1 = sign(rand(1,signal_length)-0.5)+sign(rand(1,signal_length)-0.5)*1i;
 
@@ -62,8 +62,14 @@ s_04_real = real(s_03_IF);
 % up sample to analog-------
 s_05_up_analog = up_sample(M_2,s_04_real);
 
+SNR_dB = -2;
+SNR = 10^(SNR_dB/10);
+signal_power = mean(abs(s_05_up_analog).^2);
+noise_power = signal_power/SNR;
+s_06_add_noise = s_05_up_analog + randn(1,length(s_05_up_analog))*sqrt(noise_power);
+
 % LPF-----------------------
-s_06_toChannel = filter(Lab15_demo_p2_IIR,s_05_up_analog);
+s_06_toChannel = filter(Lab15_HW_p2_IIR,s_06_add_noise);
 
 s_06_channel = s_06_toChannel;
 
@@ -88,7 +94,7 @@ s_09_SRRC = s_09_SRRC([floor((length(s_09_SRRC)-length(s_08_deIFmodu))/2)+1 :...
             floor((length(s_09_SRRC)-length(s_08_deIFmodu))/2)+length(s_08_deIFmodu)]);% aligning
         
 % down sample by 16-------------
-delay = 5;
+delay = 5;%5
 s_10_down = s_09_SRRC([delay:M_1:length(s_09_SRRC)]);
 
 s_11_phase = angle(s_10_down);
@@ -98,8 +104,16 @@ s_12_Diff = s_11_phase - [0 s_11_phase(1:end-1)] ;
 
 s_13_QPSK_hat = sqrt(2)*cos(s_12_Diff) + sqrt(2)*sin(s_12_Diff)*1i;
 
-EVM_dB = 10*log10( mean(abs(s_13_QPSK_hat([11:end-10])-s_1([11:end-10])).^2) / mean(abs(s_1([11:end-10])).^2));
-EVM_percent = sqrt(mean(abs(s_13_QPSK_hat([11:end-10])-s_1([11:end-10])).^2) / mean(abs(s_1([11:end-10])).^2));
+s_13_hat_I = real(s_13_QPSK_hat);
+s_13_hat_Q = imag(s_13_QPSK_hat);
+s_1_I = real(s_1);
+s_1_Q = imag(s_1);
+
+BER = mean(abs(sign(s_13_hat_I([12:end-9]))-s_1_I([11:end-10]))/2)/2 +...
+      mean(abs(sign(s_13_hat_Q([12:end-9]))-s_1_Q([11:end-10]))/2)/2;
+
+EVM_dB = 10*log10( mean(abs(s_13_QPSK_hat([12:end-9])-s_1([11:end-10])).^2) / mean(abs(s_1([11:end-10])).^2));
+EVM_percent = sqrt(mean(abs(s_13_QPSK_hat([12:end-9])-s_1([11:end-10])).^2) / mean(abs(s_1([11:end-10])).^2));
 
 figure;
 scatter(real(s_13_QPSK_hat([11:end-10])),imag(s_13_QPSK_hat([11:end-10])),"bo");
@@ -107,5 +121,23 @@ hold on;
 scatter(real(s_1([11:end-10])),imag(s_1([11:end-10])),"r+");
 hold off;
 legend("re","tr");
-title_text = "Transmit and Receive, EVM_d_B= "+num2str(EVM_dB)+", EVM_%= "+num2str(EVM_percent)+"%";
+title_text = "Transmit and Receive, EVM_d_B= "+num2str(EVM_dB)+", EVM_%= "+num2str(EVM_percent*100)+"%";
 title(title_text,"fontsize",12);
+
+figure;
+stem([1:50],s_13_hat_I([12:61]),"bo");
+hold on;
+stem([1:50],s_1_I([11:60]),"r+");
+hold off;
+legend("re","tr");
+title_text = "Transmit and Receive, BER = "+num2str(BER);
+title(title_text,"fontsize",12);
+
+% figure;
+% stem([1:length(s_13_hat_I)],s_13_hat_I,"bo");
+% hold on;
+% stem([2:length(s_1_I)+1],s_1_I,"r+");
+% hold off;
+% legend("re","tr");
+% title_text = "Transmit and Receive, BER = "+num2str(BER);
+% title(title_text,"fontsize",12);
