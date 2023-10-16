@@ -1,0 +1,8 @@
+clear;close all;clc;
+load('P2');
+
+r2_mod = zeros(1,length(g2_x)/6);
+for i=1:6:length(g2_x)
+    bit_seq = [g2_x(i:i+6)];
+    if bit_seq(1:3) == [0 0 0]
+        r2_mod(i) = 
