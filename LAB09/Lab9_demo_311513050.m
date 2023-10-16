@@ -25,6 +25,7 @@ a = 0.5+1e-6 ;% Avoid Singularity
 % n domain SRRC
 SRRC_1_n = (4.*a./pi).*(cos((1+a).*pi.*n_1./M_1)+ M_1.*sin((1-a).*pi.*n_1./M_1)./(4.*a.*n_1))...
             ./(1-(4.*a.*n_1./M_1).^2);
+        
 
 bpsk_length = 1e2;
 s_BPSK = sign(randn(1,bpsk_length));
@@ -34,6 +35,7 @@ s_01_up_1 = up_sample(M_1,s_BPSK); % rate = symbol_rate*M
 
 % SRRC
 s_02_SRRC_1 = conv(s_01_up_1,SRRC_1_n);
+s_02_SRRC_1_ = conv(s_01_up_1,SRRC_1_n,"same");
 s_02_SRRC_1 = s_02_SRRC_1([floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+1 :...
             floor((length(s_02_SRRC_1)-length(s_01_up_1))/2)+length(s_01_up_1)]);% aligning
         
